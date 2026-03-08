@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Queen Akuma — Pair Your Bot</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #020008;
+    --surface: #0d0018;
+    --border: #2a0045;
+    --accent: #b800ff;
+    --accent2: #ff00c8;
+    --gold: #ffd700;
+    --text: #e8d5ff;
+    --muted: #7a5a99;
+    --success: #00ffaa;
+    --error: #ff3366;
+    --glow: 0 0 30px #b800ff55, 0 0 60px #b800ff22;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* ── BACKGROUND ── */
+  .bg-grid {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(184,0,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(184,0,255,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    z-index: 0;
+  }
+
+  .bg-radial {
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, #3d0066 0%, transparent 60%),
+      radial-gradient(ellipse 40% 30% at 80% 80%, #1a0033 0%, transparent 50%);
+    z-index: 0;
+  }
+
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.18;
+    z-index: 0;
+    animation: drift 12s ease-in-out infinite alternate;
+  }
+  .orb-1 { width: 500px; height: 500px; background: #b800ff; top: -150px; left: -150px; animation-delay: 0s; }
+  .orb-2 { width: 350px; height: 350px; background: #ff00c8; bottom: -100px; right: -100px; animation-delay: -4s; }
+  .orb-3 { width: 250px; height: 250px; background: #6600ff; top: 50%; left: 60%; animation-delay: -8s; }
+
+  @keyframes drift {
+    from { transform: translate(0, 0) scale(1); }
+    to   { transform: translate(40px, 30px) scale(1.1); }
+  }
+
+  /* ── LAYOUT ── */
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 80px;
+  }
+
+  /* ── CROWN HEADER ── */
+  .crown-wrap {
+    margin-bottom: 8px;
+    animation: floatCrown 4s ease-in-out infinite;
+  }
+  @keyframes floatCrown {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .crown {
+    font-size: 52px;
+    filter: drop-shadow(0 0 20px #ffd700aa);
+  }
+
+  .title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(28px, 6vw, 52px);
+    font-weight: 900;
+    background: linear-gradient(135deg, #ffd700 0%, #ff00c8 40%, #b800ff 70%, #ffd700 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s linear infinite;
+    text-align: center;
+    line-height: 1.1;
+    letter-spacing: 2px;
+  }
+  @keyframes shimmer {
+    from { background-position: 0% center; }
+    to   { background-position: 200% center; }
+  }
+
+  .subtitle {
+    font-size: 14px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 8px;
+    margin-bottom: 48px;
+    text-align: center;
+  }
+
+  /* ── CARD ── */
+  .card {
+    width: 100%;
+    max-width: 520px;
+    background: linear-gradient(145deg, rgba(30,0,50,0.9), rgba(10,0,25,0.95));
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: var(--glow), inset 0 1px 0 rgba(184,0,255,0.15);
+    backdrop-filter: blur(20px);
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #b800ff, #ff00c8, transparent);
+  }
+
+  /* ── SERVER TABS ── */
+  .tab-label {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 32px;
+    background: rgba(0,0,0,0.4);
+    padding: 6px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+
+  .tab {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .tab .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: all 0.3s;
+  }
+  .tab.active {
+    background: linear-gradient(135deg, rgba(184,0,255,0.25), rgba(255,0,200,0.15));
+    color: var(--text);
+    border: 1px solid rgba(184,0,255,0.4);
+    box-shadow: 0 0 15px rgba(184,0,255,0.2);
+  }
+  .tab.active .dot {
+    background: var(--success);
+    box-shadow: 0 0 6px var(--success);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .tab:hover:not(.active) {
+    color: var(--text);
+    background: rgba(184,0,255,0.08);
+  }
+
+  /* ── INPUT AREA ── */
+  .input-label {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .input-wrap {
+    position: relative;
+    margin-bottom: 24px;
+  }
+
+  .flag {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    pointer-events: none;
+  }
+
+  .prefix {
+    position: absolute;
+    left: 48px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent);
+    font-size: 18px;
+    font-weight: 700;
+    pointer-events: none;
+    padding-right: 4px;
+    border-right: 1px solid var(--border);
+  }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 16px 16px 16px 90px;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    outline: none;
+    transition: all 0.3s ease;
+  }
+  input[type="text"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(184,0,255,0.15), 0 0 20px rgba(184,0,255,0.1);
+    background: rgba(184,0,255,0.05);
+  }
+  input[type="text"]::placeholder {
+    color: var(--muted);
+    letter-spacing: 1px;
+    font-weight: 400;
+  }
+
+  /* ── BUTTON ── */
+  .btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #b800ff, #ff00c8);
+    color: #fff;
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 30px rgba(184,0,255,0.4);
+  }
+  .btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #ff00c8, #b800ff);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .btn:hover::before { opacity: 1; }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(184,0,255,0.6); }
+  .btn:active { transform: translateY(0); }
+  .btn span { position: relative; z-index: 1; }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* ── LOADING ── */
+  .loader {
+    display: none;
+    width: 20px; height: 20px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── RESULT ── */
+  .result {
+    margin-top: 28px;
+    display: none;
+  }
+
+  .result-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .result-divider::before, .result-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border));
+  }
+  .result-divider::after {
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+  .result-divider span {
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .code-box {
+    background: rgba(0,0,0,0.6);
+    border: 1px solid rgba(184,0,255,0.3);
+    border-radius: 14px;
+    padding: 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .code-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(184,0,255,0.05), rgba(255,0,200,0.05));
+  }
+
+  .code-label {
+    font-size: 10px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .code-value {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(26px, 7vw, 40px);
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--gold), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 8px;
+    display: block;
+    margin-bottom: 16px;
+    text-shadow: none;
+    animation: glow-pulse 2s ease-in-out infinite;
+    position: relative;
+  }
+  @keyframes glow-pulse {
+    0%,100% { filter: drop-shadow(0 0 8px #ffd700aa); }
+    50% { filter: drop-shadow(0 0 20px #ff00c8aa); }
+  }
+
+  .copy-btn {
+    background: rgba(184,0,255,0.15);
+    border: 1px solid rgba(184,0,255,0.3);
+    border-radius: 8px;
+    color: var(--accent);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 8px 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+  }
+  .copy-btn:hover {
+    background: rgba(184,0,255,0.3);
+    box-shadow: 0 0 15px rgba(184,0,255,0.3);
+  }
+  .copy-btn.copied {
+    color: var(--success);
+    border-color: var(--success);
+    background: rgba(0,255,170,0.1);
+  }
+
+  .steps {
+    margin-top: 20px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+  .steps-title {
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #c0a0d0;
+    line-height: 1.4;
+  }
+  .step:last-child { margin-bottom: 0; }
+  .step-num {
+    min-width: 20px; height: 20px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+    margin-top: 1px;
+  }
+
+  /* ── ERROR ── */
+  .error-box {
+    background: rgba(255,51,102,0.08);
+    border: 1px solid rgba(255,51,102,0.3);
+    border-radius: 10px;
+    padding: 14px 18px;
+    color: var(--error);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+    display: none;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-top: 40px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 2px;
+  }
+  .footer span {
+    color: var(--accent2);
+  }
+
+  /* ── PARTICLES ── */
+  .particles {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .particle {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: var(--accent);
+    border-radius: 50%;
+    opacity: 0;
+    animation: rise linear infinite;
+  }
+  @keyframes rise {
+    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.2; }
+    100% { transform: translateY(-20px) scale(1); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-radial"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="particles" id="particles"></div>
+
+<div class="wrapper">
+
+  <div class="crown-wrap"><div class="crown">👸</div></div>
+  <h1 class="title">Queen Akuma</h1>
+  <p class="subtitle"> free WhatsApp Bot</p>
+
+  <div class="card">
+
+    <p class="tab-label">Select Server</p>
+    <div class="tabs">
+      <button class="tab active" onclick="selectServer(0, this)">
+        <div class="dot"></div> Server 1
+      </button>
+      <button class="tab" onclick="selectServer(1, this)">
+        <div class="dot"></div> Server 2
+      </button>
+    </div>
+
+    <label class="input-label">Your WhatsApp number</label>
+    <div class="input-wrap">
+      <span class="flag">🌍</span>
+      <span class="prefix">+</span>
+      <input type="text" id="phoneInput" placeholder="22391234567" maxlength="15" oninput="this.value=this.value.replace(/\D/g,'')"/>
+    </div>
+
+    <button class="btn" id="pairBtn" onclick="requestCode()">
+      <div class="loader" id="loader"></div>
+      <span id="btnText">Get Pairing Code</span>
+    </button>
+
+    <div class="error-box" id="errorBox">
+      <span>⚠️</span>
+      <span id="errorMsg">An error occurred.</span>
+    </div>
+
+    <div class="result" id="result">
+      <div class="result-divider"><span>Your Code</span></div>
+
+      <div class="code-box">
+        <span class="code-label">Pairing Code</span>
+        <span class="code-value" id="codeValue">— — — —</span>
+        <button class="copy-btn" id="copyBtn" onclick="copyCode()">⬡ Copy Code</button>
+      </div>
+
+      <div class="steps">
+        <div class="steps-title">How to connect</div>
+        <div class="step"><div class="step-num">1</div><span>Open WhatsApp on your phone</span></div>
+        <div class="step"><div class="step-num">2</div><span>Go to <strong>Settings → Linked Devices</strong></span></div>
+        <div class="step"><div class="step-num">3</div><span>Tap <strong>Link a Device</strong> → <strong>Link with phone number</strong></span></div>
+        <div class="step"><div class="step-num">4</div><span>Enter the code above — you have <strong>60 seconds</strong></span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">Made with <span>♛</span> by Inconnu Boy</div>
+
+</div>
+
+<script>
+  const SERVERS = [
+    'https://kumabot-7c01bc2b4499.herokuapp.com',
+    'https://akumabot-7c01bc2b4499.herokuapp.com'
+  ];
+  let activeServer = 0;
+
+  function selectServer(idx, el) {
+    activeServer = idx;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    resetUI();
+  }
+
+  function resetUI() {
+    document.getElementById('result').style.display = 'none';
+    document.getElementById('errorBox').style.display = 'none';
+    document.getElementById('codeValue').textContent = '— — — —';
+  }
+
+  async function requestCode() {
+    const phone = document.getElementById('phoneInput').value.trim();
+    if (!phone || phone.length < 7) {
+      showError('Please enter a valid phone number.');
+      return;
+    }
+
+    setLoading(true);
+    resetUI();
+
+    try {
+      const url = `${SERVERS[activeServer]}/code?number=${phone}`;
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (data.code) {
+        showCode(data.code);
+      } else if (data.status === 'already_connected') {
+        showError('This number is already connected to the bot.');
+      } else {
+        showError(data.message || data.error || 'Failed to get pairing code.');
+      }
+    } catch (e) {
+      showError('Cannot reach the server. Please try again.');
+    }
+
+    setLoading(false);
+  }
+
+  function showCode(code) {
+    document.getElementById('codeValue').textContent = code;
+    const r = document.getElementById('result');
+    r.style.display = 'block';
+    r.style.animation = 'none';
+    requestAnimationFrame(() => {
+      r.style.animation = 'fadeUp 0.5s ease forwards';
+    });
+  }
+
+  function showError(msg) {
+    const box = document.getElementById('errorBox');
+    document.getElementById('errorMsg').textContent = msg;
+    box.style.display = 'flex';
+  }
+
+  function setLoading(state) {
+    const btn = document.getElementById('pairBtn');
+    const loader = document.getElementById('loader');
+    const text = document.getElementById('btnText');
+    btn.disabled = state;
+    loader.style.display = state ? 'block' : 'none';
+    text.style.display = state ? 'none' : 'inline';
+  }
+
+  function copyCode() {
+    const code = document.getElementById('codeValue').textContent;
+    navigator.clipboard.writeText(code).then(() => {
+      const btn = document.getElementById('copyBtn');
+      btn.textContent = '✓ Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = '⬡ Copy Code';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+
+  // Particles
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (8 + Math.random() * 15) + 's';
+    p.style.animationDelay = (-Math.random() * 20) + 's';
+    p.style.width = p.style.height = (Math.random() > 0.7 ? 3 : 2) + 'px';
+    p.style.background = Math.random() > 0.5 ? '#b800ff' : '#ff00c8';
+    container.appendChild(p);
+  }
+
+  // Fade up keyframe injection
+  const style = document.createElement('style');
+  style.textContent = `@keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }`;
+  document.head.appendChild(style);
+
+  // Enter key
+  document.getElementById('phoneInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') requestCode();
+  });
+</script>
+</body>
+</html>
